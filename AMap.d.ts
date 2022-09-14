@@ -1,4 +1,7 @@
 declare module AMap {
+  /**地图事件类型**/
+  export type MapEventType = "hide" | "show" | "click" | "dblclick" | "rightclick" | "mousedown" | "mouseup" | "mouseover" | "mouseout" | "touchstart" | "touchmove" | "touchend"
+
   /**此对象用于表示地图、覆盖物、叠加层上的各种鼠标事件返回，包含以下字段：
    高德的事件说明文档有问题； 不是 LngLat 类，而是一个普通对象;
    **/
@@ -103,7 +106,7 @@ declare module AMap {
   /** 地物对象的经纬度矩形范围。 **/
   export class Bounds {
     /**矩形范围的构造函数.参数southWest、northEast分别代表地物对象西南角经纬度和东北角经纬度值。**/
-    constructor(southWest: LngLat, northEast: LngLat);
+    constructor(southWest: LngLat | number[], northEast: LngLat | number[]);
 
     /**指定点坐标是否在矩形范围内 相关示例**/
     public contains(point: LngLat): boolean;
@@ -125,8 +128,6 @@ declare module AMap {
 
     /**以字符串形式返回地物对象的矩形范围**/
     public toString(): string;
-
-
   }
 
   /** MapOptions **/
@@ -412,7 +413,9 @@ declare module AMap {
     /**
      * 绑定事件声明
      */
-    public on(event: string, callback: Function): void;
+    public on(event: string, cb: Function): void;
+
+    public off(event: string, cb: Function): void;
   }
 
   /** View2DOptions **/
@@ -673,7 +676,7 @@ declare module AMap {
   }
 
   export interface LabelMarkerOptions {
-    name?: string; //	标注名称，作为标注标识，并非最终在地图上显示的文字内容，显示文字内容请设置 opts.text.content
+    name?: string; //	标注名称，作为标注标识，并非最终在地图上显示的文字内容，显示文字内容请设置 text.content
     position?: (Vector2 | LngLat); //	标注位置
     zooms?: Vector2; //		标注显示级别范围， 可选值： [2,20]
     opacity?: number; //		标注透明度，默认值: 1
@@ -687,41 +690,73 @@ declare module AMap {
 
   export class LabelMarker {
     constructor(opts: LabelMarkerOptions);
+
     getName(): string;
+
     setName(name: string);
+
     getPosition(): LngLat;
+
     setPosition(position: (LngLat | [number] | string));
+
     getZooms(): number;
+
     setZooms(zooms: number);
+
     getOpacity(): number;
+
     setOpacity(opacity: number);
+
     getzIndex(): number;
+
     setzIndex(zIndex: number);
+
     getRank(): number;
+
     /**设置标注的优先级，该优先级用于 labelsLayer 支持避让时，rank 值大的标注会避让掉 rank 值低的标注。**/
     setRank(rank: number);
+
     getText(): TextOptions;
+
     setText(textOpts: TextOptions);
+
     getIcon();
+
     setIcon(iconOpts: IconOptions);
+
     getOptions();
+
     getExtData();
+
     setExtData(extData: any);
+
     setTop(isTop: boolean);
+
     getVisible();
+
     /**获取该标注是否被避让，从而没有显示**/
     getCollision(): boolean;
+
     public show(): void;
+
     public hide(): void;
+
     public remove(): void;
+
     /**以给定速度移动标注到指定位置, 需加载 AMap.MoveAnimation 插件才可使用**/
     public moveTo(targetPosition: (LngLat | Vector2), opts: MoveToOptions): void;
+
     /**以指定的时长，标注沿指定的路径移动，加载 AMap.MoveAnimation 后可以使用**/
     public moveAlong(path: (Array<LngLat> | Array<Vector2> | Array<MoveAlongObj>), opts: MoveAlongOptions): void;
+
     public startMove(): void;
+
     public stopMove(): void;
+
     public pauseMove(): void;
+
     public resumeMove(): void;
+
     public on(event: string, callback: Function): void;
   }
 
@@ -736,21 +771,37 @@ declare module AMap {
 
   export class LabelsLayer {
     constructor(opts: LabelsLayerOptions) ;
+
     public getCollision(): number;
+
     public setCollision(collision: number): void;
+
     public getAllowCollision(): boolean;
+
     public setAllowCollision(allowCollision: boolean): void;
+
     public getOpacity(): number;
+
     public setOpacity(opacity: number): void;
+
     public getZooms(): number;
+
     public setZooms(zooms: number): void;
+
     public getzIndex(): number;
+
     public setzIndex(zIndex: number): void;
+
     public add(labelMarkers: (LabelMarker | Array<LabelMarker>)): void;
+
     public remove(labelMarkers: (LabelMarker | Array<LabelMarker>)): void;
+
     public clear(): void;
+
     public show(): void;
+
     public hide(): void;
+
     public getAllOverlays(): Array<any>;
   }
 
@@ -983,6 +1034,7 @@ declare module AMap {
     borderWidth?: number;//	文字背景描边粗细
     fold?: boolean;//	文字是否折行（6个字一折行）
   }
+
   /** TextOptions **/
   export interface TextOptions {
     /**标记显示的文本内容**/
@@ -1180,9 +1232,9 @@ declare module AMap {
 
     /**获取用户自定义属性**/
     public getExtData(): any;
-
-
   }
+
+  export type EditorType = "addnode" | "adjust" | "move" | "add" | "end"
 
   /** PolylineOptions **/
   export interface PolylineOptions {
@@ -1287,9 +1339,7 @@ declare module AMap {
 
   }
 
-  /**
-   * 多边形绘制的配置项接口
-   */
+  /** 多边形绘制的配置项接口 */
   export interface PolygonOptions {
 
     /** 要显示该polygon的地图对象 */
@@ -1344,9 +1394,7 @@ declare module AMap {
     autoSetView?: boolean;
   }
 
-  /**
-   * Polygon类
-   */
+  /** Polygon类 */
   export class Polygon {
     /** 以PolygonOption作为构建函数的配置项  */
     constructor(opt: PolygonOptions)
@@ -1428,32 +1476,46 @@ declare module AMap {
     constructor(opt: CircleOptions);
 
     /**设置圆中心点*/
-    public setCenter(center: AMap.LngLat|number[]);
+    public setCenter(center: AMap.LngLat | number[]);
+
     /**设置圆形的半径*/
     public setRadius(radius: number);
+
     /**获取圆中心点*/
     public getCenter(): AMap.LngLat;
+
     /**获取圆形的半径*/
     public getRadius(): number;
+
     public generateBuffer(gl: any);
+
     /**获取圆形的半径*/
     public hide();
+
     /**判断指定点坐标是否在圆内*/
     public contains(point: LngLat);
+
     /**修改圆属性（样式风格，包括组成圆形轮廓线的节点、轮廓线样式等。属性详情参看CircleOptions列表）*/
     public setOptions(optsArg: CircleOptions);
+
     /**显示圆形*/
     public show();
+
     /**获取当前平面高度值*/
     public getPlaneHeight(): number;
+
     /**获取用户自定义属性*/
     public getExtData(): any;
+
     /**设置用户自定义属性，支持JavaScript API任意数据类型*/
     public setExtData(extData: any);
+
     /**销毁内存-圆形*/
     public destroy()
+
     /**获取圆形的属性*/
     public getOptions(): CircleOptions;
+
     /**获取面积,平米*/
     public getArea(): number;
 
@@ -1472,10 +1534,11 @@ declare module AMap {
      *  touchend 触摸结束时触发事件，仅适用移动设备 属性说明： data (MapsEvent)
      */
     public on(event: string, cb: Function);
+
     public off(event: string, cb: Function);
   }
 
-  export interface CircleEditorOptions {
+  export interface EditorOptions {
     /**新创建的对象样式**/
     createOptions?: Object;
     /**编辑样式**/
@@ -1486,16 +1549,25 @@ declare module AMap {
     resizePoint?: Object;
   }
 
+  export interface CircleEditorCallback {
+    target: Circle;
+    lnglat?: Lnglat;
+    pixel?: Pixel;
+  }
+
   export class CircleEditor {
     /**AMap.Map 实例, AMap.Circle 实例(可选)**/
-    constructor(map: AMap.Map, circle?: AMap.Circle, opt?: CircleEditorOptions);
+    constructor(map: AMap.Map, circle?: AMap.Circle, opt?: EditorOptions);
 
     /**设置编辑对象*/
     public setTarget(overlay?: AMap.Circle);
+
     /**获取编辑对象*/
     public getTarget(): Circle | undefined;
+
     /**打开编辑功能*/
     public open();
+
     /**关闭编辑功能*/
     public close();
 
@@ -1509,9 +1581,110 @@ declare module AMap {
      * (end:调用close之后触发该事件，target即为编辑后的覆盖物对象, 回调：data ({target: Circle}))
      * @param cb
      */
-    public on(event: string, cb: Function);
+    public on(event: EditorType, cb: (data: CircleEditorCallback) => void);
+
     /**关闭事件**/
-    public off(event: string, cb: Function);
+    public off(event: EditorType, cb: Function);
+  }
+
+  /**矩形参数**/
+  export interface RectangleOptions {
+    /**要显示该覆盖物的地图对象**/
+    map?: Map;
+    /**矩形的范围**/
+    bounds?: Bounds;
+    /**矩形覆盖物的叠加顺序。地图上存在多个矩形覆盖物叠加时，通过该属性使级别较高的矩形覆盖物在上层显示(default 10)  **/
+    zIndex?: number;
+    /**是否将覆盖物的鼠标或touch等事件冒泡到地图上（自v1.3 新增）(default false)  **/
+    bubble?: boolean;
+    /**指定鼠标悬停时的鼠标样式，自定义cursor，IE仅支持cur/ani/ico格式，Opera不支持自定义cursor**/
+    cursor?: string;
+    /**线条颜色，使用16进制颜色代码赋值。默认值为#00D3FC (default #00D3FC)  **/
+    strokeColor?: string;
+    /**轮廓线透明度，取值范围 [0,1] ，0表示完全透明，1表示不透明。默认为0.9**/
+    strokeOpacity?: number;
+    /**轮廓线宽度(default 2)  **/
+    strokeWeight?: number;
+    /**矩形填充颜色，使用16进制颜色代码赋值，如：#00B2D5 (default #00B2D5)  **/
+    fillColor?: string;
+    /**矩形填充透明度，取值范围 [0,1] ，0表示完全透明，1表示不透明。默认为0.5**/
+    fillOpacity?: number;
+    /**设置矩形是否可拖拽移动，默认为false**/
+    draggable?: boolean;
+    /**设置矩形平面是否离地绘制，默认值为0，等于0时贴地绘制。大于0时离地绘制，此时矩形平面高度等于height值加Rectangle质心点高程值，可以通过getPlaneHeight获取当前平面高度值。**/
+    height?: number;
+    /**用户自定义属性，支持JavaScript API任意数据类型，如Polygon的id等**/
+    extData?: any;
+    /**轮廓线样式，实线:solid，虚线:dashed。默认solid**/
+    strokeStyle?: "solid" | "dashed";
+    /**  勾勒形状轮廓的虚线和间隙的样式，此属性在strokeStyle 为dashed 时有效， 此属性在ie9+浏览器有效 取值： 实线： [0,0,0] 虚线： [10,10] ， [10,10] 表示10个像素的实线和10个像素的空白（如此反复）组成的虚线 点画线： [10,2,10] ， [10,2,10] 表示10个像素的实线和2个像素的空白 + 10个像素的实线和10个像素的空白 （如此反复）组成的虚线**/
+    strokeDasharray?: number[];
+  }
+
+  /**矩形**/
+  export class Rectangle {
+    constructor(opts: RectangleOptions);
+
+    /**设置矩形的范围*/
+    public setBounds(bounds: Bounds);
+
+    public generateBuffer(gl: any);
+
+    public hide();
+
+    public setOptions(optsArg: RectangleOptions);
+
+    public show();
+
+    /**判断坐标是否在矩形上**/
+    public contains(point: LngLat);
+
+    /**获取当前矩形平面高度值**/
+    public getPlaneHeight();
+
+    public getCenter();
+
+    public getExtData();
+
+    /**设置用户自定义属性，支持JavaScript API任意数据类型**/
+    public setExtData(extData: any);
+
+    public destroy();
+
+    public getOptions();
+
+    public getArea();
+
+    public on(type: MapEventType, cb: (e: MapsEvent) => void);
+
+    public off(type: MapEventType, cb: (e: MapsEvent) => void);
+  }
+
+  export interface RectangleEditorCallback {
+    bounds?: Bounds;
+    target: Rectangle;
+    lnglat?: Lnglat;
+    pixel?: Pixel;
+  }
+  /**矩形编辑器**/
+  export class RectangleEditor {
+    constructor(map: Map, rect?: Rectangle, opts?: EditorOptions);
+
+    /**设置编辑对象**/
+    public setTarget(overlay?: Rectangle);
+
+    /**获取编辑对象**/
+    public getTarget();
+
+    /**开始编辑**/
+    public open();
+
+    /**结束编辑**/
+    public close();
+
+    public on(type: EditorType, cb: (data: RectangleEditorCallback) => void);
+
+    public off(type: EditorType, cb: Function);
   }
 
   /**
@@ -1630,7 +1803,7 @@ declare module AMap {
     rectZoomOut(options: PolygonOptions);
 
     // 关闭当前鼠标操作。参数arg设为true时，鼠标操作关闭的同时清除地图上绘制的所有覆盖物对象；设为false时，保留所绘制的覆盖物对象。默认为false
-    close(arg: boolean);
+    close(arg = false);
 
     public on(event: string, cb: Function): void;
   }
@@ -1642,6 +1815,13 @@ declare module AMap {
    */
   export type PolygonEvent = "addnode" | "removenode" | "adjust" | "move" | "add" | "end"
 
+  export interface PolygonEditorCallback {
+    target: Polygon;
+    lnglat?: Lnglat;
+    pixel?: Pixel;
+    type: string;
+  }
+
   export class PolygonEditor {
     constructor(map: AMap.Map, polygon?: Polygon, opts?: Object);
 
@@ -1651,7 +1831,7 @@ declare module AMap {
     // 设置编辑对象
     setTarget(tar: any, overlay: Polygon);
 
-    getTarget() : Polygon;
+    getTarget(): Polygon;
 
     // 设置吸附多边形
     setAdsorbPolygons(list: Polygon | Array<Polygon>);
@@ -1669,6 +1849,7 @@ declare module AMap {
     close();
 
     // 绑定事件声明
-    public on(event: PolygonEvent, callback: ({ target: Polygon, lnglat: Lnglat, pixel: Pixel }) => void): void;
+    public on(event: PolygonEvent, callback: (data: PolygonEditorCallback) => void): void;
+    public off(event: PolygonEvent, callback: Function): void;
   }
 }
